@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require 'lego_ev3'
+require 'optparse'
+
+options = {
+  user_config: LegoEv3::default_user_config
+}
+
+OptionParser.new do |opt|
+  opt.on('-u', '--upload PROJECT', 'Upload everything under ./.../PROJECT to /home/PROJECT on the brick.') do |project|
+    options[:mode] = :upload
+    options[:project] = project
+  end
+
+  opt.on('-c, --config PATH', 'Use the provided configuration at PATH.') do |path|
+    options[:user_config].merge!(LegoEv3::load_config(path))
+  end
+end.parse!
+
+puts
+puts "Config used:"
+puts
+ap options
+puts
+
+LegoEv3::Uploader
+  .new(
+    options[:user_config]['ssh']['host'],
+    options[:user_config]['ssh']['username'],
+    options[:user_config]['ssh']['password'],
+    options[:project])
+  .upload
