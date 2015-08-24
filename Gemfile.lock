@@ -1,0 +1,32 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    awesome_print (1.6.1)
+    blockenspiel (0.4.5)
+    coderay (1.1.0)
+    hashie (3.4.2)
+    method_source (0.8.2)
+    net-scp (1.2.1)
+      net-ssh (>= 2.6.5)
+    net-ssh (2.9.2)
+    net-ssh-simple (1.6.10)
+      blockenspiel (= 0.4.5)
+      hashie (= 3.4.2)
+      net-scp (= 1.2.1)
+      net-ssh (= 2.9.2)
+    pry (0.10.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    slop (3.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  awesome_print
+  net-ssh-simple
+  pry
+
+BUNDLED WITH
+   1.10.6
