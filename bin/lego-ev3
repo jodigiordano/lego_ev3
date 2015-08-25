@@ -21,7 +21,7 @@ end.parse!
 puts
 puts "Config used:"
 puts
-ap options
+puts options.inspect
 puts
 
 LegoEv3::Uploader

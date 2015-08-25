@@ -60,7 +60,6 @@ module LegoEv3
       LegoEv3::Commands::TachoMotor.run_to_abs_pos!(@connection, @id)
 
       loop do
-        ap info
         break if operation_completed?(old_position)
       end
 
