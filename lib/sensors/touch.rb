@@ -9,7 +9,7 @@ module LegoEv3
     end
 
     def poll
-      @value = LegoEv3::Commands::LegoSensor.get_value0!(@connection, @id)
+      @value = poll_value(1)[0]
     end
 
     def info
