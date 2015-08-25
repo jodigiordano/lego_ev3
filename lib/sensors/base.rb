@@ -6,25 +6,30 @@ module LegoEv3
       @id = id
       @port = port
       @driver_name = driver_name
-
-      LegoEv3::Commands::LegoSensor.get_decimals(@connection, @id) do |response|
-        @decimals = response
-      end
-
-      LegoEv3::Commands::LegoSensor.get_num_values(@connection, @id) do |response|
-        @value_parts_count = response
-      end
-
-      @connection.flush
     end
 
     def info
       {
         id: @id,
         port: @port,
-        driver_name: @driver_name,
-        decimals: @decimals
+        driver_name: @driver_name
       }
+    end
+
+    protected
+    
+    def poll_value(parts_count)
+      raw = []
+
+      parts_count.times do |i|
+        LegoEv3::Commands::LegoSensor.send("get_value#{i}", @connection, @id) do |value|
+          raw << value
+        end
+      end
+
+      @connection.flush
+
+      raw
     end
   end
 end

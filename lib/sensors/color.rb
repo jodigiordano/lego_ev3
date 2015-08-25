@@ -11,6 +11,16 @@ module LegoEv3
         rgb: 'RGB-RAW'
       }
 
+      @modes_value_parts = {
+        reflect: 1,
+        ambient: 1,
+        color: 1,
+        reflect_raw: 2,
+        rgb: 3
+      }
+
+      @value_to_color = [:none, :black, :blue, :green, :yellow, :red, :white, :brown]
+
       self.mode = :reflect
     end
 
@@ -32,13 +42,14 @@ module LegoEv3
     end
 
     def poll
-      @value = LegoEv3::Commands::LegoSensor.get_value0!(@connection, @id)
+      @value = parse_value(poll_value(@modes_value_parts[@mode]))
     end
 
     def info
       super.merge({
         sub_type: :color,
-        mode: @mode
+        mode: @mode,
+        value: @value
       })
     end
 
@@ -48,6 +59,18 @@ module LegoEv3
       @supported_modes.select do |key, value|
         raw == value
       end.first[0]
+    end
+
+    def parse_value(raw)
+      if @mode == :reflect || @mode == :ambient
+        raw.first.to_f / 100 # percent
+      elsif @mode == :color
+        @value_to_color[raw.first]
+      elsif @mode == :reflect_raw
+        raw[0..1]
+      elsif @mode == :rgb
+        raw[0..2]
+      end
     end
   end
 end
