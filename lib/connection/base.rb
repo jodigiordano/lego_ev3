@@ -8,7 +8,7 @@ module LegoEv3
       @to_send << [[verb, path, value, handle], callback]
     end
 
-    def flush
+    def flush(summary = nil)
       @connection ||= create_connection
 
       commands = @to_send.map{ |(c, _)| c }
@@ -18,7 +18,11 @@ module LegoEv3
         call_connection(commands)
       end
 
-      puts "#{commands}. #{time} ms."
+      summary ||= commands
+        .map{ |c| "[#{c.join(' ')}]" }
+        .join(' ')
+
+      puts "#{summary}. #{time} ms."
 
       callbacks.each_with_index.each do |c, i|
         c.call(responses[i]) if c

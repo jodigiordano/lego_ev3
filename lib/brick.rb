@@ -35,6 +35,8 @@ module LegoEv3
         end
       end
 
+      @connection.flush("Refreshed ports and their status")
+
       # Retrieve Port name -> Tacho motor in batch.
       tacho_motors = {}
       LegoEv3::Commands::TachoMotor.list!(@connection).each do |motor|
@@ -51,7 +53,7 @@ module LegoEv3
         end
       end
 
-      @connection.flush
+      @connection.flush("Refreshed motors and sensors")
 
       # Assemble port info.
       @ports.each do |port|

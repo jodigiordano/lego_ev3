@@ -29,8 +29,8 @@ module LegoEv3
       @inner_connection.send(verb, path, value, handle, &callback)
     end
 
-    def flush
-      @inner_connection.flush
+    def flush(summary = nil)
+      @inner_connection.flush(summary)
     end
 
     def close
