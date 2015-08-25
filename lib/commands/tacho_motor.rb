@@ -6,7 +6,7 @@ module LegoEv3::Commands::TachoMotor
   get :port_name
   get :count_per_rot, Integer
   get :duty_cycle, Integer
-  get :states, String, 'state', -> response { response.split(' ').map{ |s| s.strip.to_sym } }
+  get :states, String, 'state', 'r', -> response { response.split(' ').map{ |s| s.strip.to_sym } }
   get_set :duty_cycle_sp, Integer
   get_set :position, Integer
   get_set :position_sp, Integer

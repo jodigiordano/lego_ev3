@@ -6,8 +6,15 @@ end
 
 require_relative 'utilities'
 require_relative 'exceptions'
+
+require_relative 'commands/builder'
 require_all_relative 'commands'
+
+require_relative 'connection/base'
 require_all_relative 'connection'
+
+require_relative 'sensors/base'
 require_all_relative 'sensors'
+
 require_relative 'tacho_motor'
 require_relative 'brick'

@@ -17,11 +17,11 @@ module LegoEv3
         end
       end
 
-      def get(alias_name, type = String, command_name = nil, processor = nil)
+      def get(alias_name, type = String, command_name = nil, handle = 'r', processor = nil)
         command_name ||= alias_name
 
         self.define_singleton_method "get_#{alias_name}" do |connection, id, &callback|
-          connection.send("cat #{get_path(id)}/#{command_name}") do |response|
+          connection.send(:read, "#{get_path(id)}/#{command_name}", nil, handle) do |response|
             sanitized = (response || '').strip
 
             if type == Integer
@@ -48,11 +48,11 @@ module LegoEv3
         end
       end
 
-      def set(alias_name, command_name = nil)
+      def set(alias_name, command_name = nil, handle = 'r')
         command_name ||= alias_name
 
         self.define_singleton_method "set_#{alias_name}" do |connection, id, value|
-          connection.send("echo #{value} > #{get_path(id)}/#{command_name}")
+          connection.send(:write, "#{get_path(id)}/#{command_name}", value.to_s, handle)
         end
 
         self.define_singleton_method "set_#{alias_name}!" do |connection, id, value|
@@ -62,17 +62,17 @@ module LegoEv3
       end
 
       def get_set(alias_name, type = String, command_name = nil, processor = nil)
-        get(alias_name, type, command_name, processor)
-        set(alias_name, command_name)
+        get(alias_name, type, command_name, 'r+', processor)
+        set(alias_name, command_name, 'r+')
       end
 
       def command(alias_name, command_name = nil)
         command_name ||= alias_name
 
         self.define_singleton_method alias_name do |connection, id|
-          connection.send("echo #{command_name} > #{get_command_path(id)}")
+          connection.send(:write, get_command_path(id), command_name, 'w')
         end
-        
+
         self.define_singleton_method "#{alias_name}!" do |connection, id|
           self.send(alias_name, connection, id)
           connection.flush
@@ -81,11 +81,8 @@ module LegoEv3
 
       def has_list
         self.define_singleton_method :list do |connection, &callback|
-          connection.send("ls -C #{get_base_path}") do |response|
-            # TODO: Bug? The folder is not created if no sensor plugged in once.
-            entries_raw = response || ''
-            entries = entries_raw.include?('No such file or directory') ? [] : entries_raw.split(' ').map(&:strip)
-            callback.call(entries)
+          connection.send(:list, get_base_path, nil, 'r') do |response|
+            callback.call(response)
           end
         end
 

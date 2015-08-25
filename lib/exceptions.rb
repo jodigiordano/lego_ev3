@@ -8,4 +8,12 @@ module LegoEv3
         "[ssh #{user}@#{host} + enter your password]")
     end
   end
+
+  class InvalidCommandException < Exception
+    def initialize(verb)
+      super(
+        "The command with verb #{verb} is not supported." +
+        "You must implement it.")
+    end
+  end
 end

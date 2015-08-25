@@ -4,28 +4,21 @@ module LegoEv3
       @to_send = []
     end
 
-    def send(command, &callback)
-      @to_send << [command, callback]
+    def send(verb, path, value = nil, handle = 'r+', &callback)
+      @to_send << [[verb, path, value, handle], callback]
     end
 
     def flush
       @connection ||= create_connection
 
-      joined_command = @to_send
-        .map{ |(c, _)| c }
-        .join(';')
+      commands = @to_send.map{ |(c, _)| c }
+      callbacks = @to_send.map{ |(_, c)| c }
 
-      callbacks = @to_send
-        .map{ |(_, c)| c }
-
-      joined_response, time = LegoEv3::with_timer do
-        call_connection(joined_command)
+      responses, time = LegoEv3::with_timer do
+        call_connection(commands)
       end
 
-      puts "#{joined_command}. #{time} ms."
-
-      # We assume that one command output one line of result.
-      responses = joined_response.split("\n")
+      puts "#{commands}. #{time} ms."
 
       callbacks.each_with_index.each do |c, i|
         c.call(responses[i]) if c

@@ -25,8 +25,8 @@ module LegoEv3
       end
     end
 
-    def send(command, &callback)
-      @inner_connection.send(command, &callback)
+    def send(verb, path, value = nil, handle = 'r+', &callback)
+      @inner_connection.send(verb, path, value, handle, &callback)
     end
 
     def flush
