@@ -38,7 +38,7 @@ module LegoEv3
         commands.map do |(verb, _, _, _)|
           if verb == :list
             # TODO: Bug? The folder is not created if no sensor plugged in once.
-            r = responses.shift
+            r = responses.shift || ''
             r.include?('No such file or directory') ? [] : r.split(' ').map(&:strip)
           elsif verb == :read
             responses.shift
