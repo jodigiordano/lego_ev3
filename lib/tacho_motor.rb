@@ -97,12 +97,12 @@ module LegoEv3
       sync!
     end
 
-    def ticks_per_rotation
-      @ticks_per_rotation = LegoEv3::Commands::TachoMotor.get_count_per_rot!(@connection, @id)
+    def ticks_per_rotation(sync = true)
+      get_value('@ticks_per_rotation', 'get_count_per_rot', sync)
     end
 
-    def speed
-      @speed = LegoEv3::Commands::TachoMotor.get_duty_cycle!(@connection, @id)
+    def speed(sync = true)
+      get_value('@speed', 'get_duty_cycle', sync)
     end
 
     # This is actually the desired speed but feels more natural.
@@ -117,12 +117,12 @@ module LegoEv3
       desired_speed
     end
 
-    def desired_speed
-      @desired_speed = LegoEv3::Commands::TachoMotor.get_duty_cycle_sp!(@connection, @id)
+    def desired_speed(sync = true)
+      get_value('@desired_speed', 'get_duty_cycle_sp', sync)
     end
 
-    def polarity
-      @polarity = LegoEv3::Commands::TachoMotor.get_polarity!(@connection, @id)
+    def polarity(sync = true)
+      get_value('@polarity', 'get_polarity', sync)
     end
 
     def polarity=(new_value)
@@ -134,8 +134,8 @@ module LegoEv3
       polarity
     end
 
-    def position
-      @position = LegoEv3::Commands::TachoMotor.get_position!(@connection, @id)
+    def position(sync = true)
+      get_value('@position', 'get_position', sync)
     end
 
     def position=(new_value)
@@ -143,16 +143,16 @@ module LegoEv3
       position
     end
 
-    def desired_position
-      @desired_position = LegoEv3::Commands::TachoMotor.get_position_sp!(@connection, @id)
+    def desired_position(sync = true)
+      get_value('@desired_position', 'get_position_sp', sync)
     end
 
-    def desired_time
-      @desired_time = LegoEv3::Commands::TachoMotor.get_time_sp!(@connection, @id)
+    def desired_time(sync = true)
+      get_value('@desired_time', 'get_time_sp', sync)
     end
 
-    def stop_mode
-      @stop_mode = LegoEv3::Commands::TachoMotor.get_stop_command!(@connection, @id)
+    def stop_mode(sync = true)
+      get_value('@stop_mode', 'get_stop_command', sync)
     end
 
     def stop_mode=(new_value)
@@ -198,15 +198,17 @@ module LegoEv3
     end
 
     def sync!
-      ticks_per_rotation
-      speed
-      desired_speed
-      polarity
-      position
-      desired_position
-      desired_time
-      stop_mode
-      update_states
+      ticks_per_rotation(false)
+      speed(false)
+      desired_speed(false)
+      polarity(false)
+      position(false)
+      desired_position(false)
+      desired_time(false)
+      stop_mode(false)
+      update_states(false)
+
+      @connection.flush("Updated motor state")
 
       info
     end
@@ -236,9 +238,17 @@ module LegoEv3
       throw Exception.new('Speed is set to 0.') if desired_speed == 0
     end
 
-    def update_states
-      states = LegoEv3::Commands::TachoMotor.get_states!(@connection, @id)
+    def update_states(sync = true)
+      if sync
+        update_states_part_2(LegoEv3::Commands::TachoMotor.get_states!(@connection, @id))
+      else
+        LegoEv3::Commands::TachoMotor.get_states(@connection, @id) do |states|
+          update_states_part_2(states)
+        end
+      end
+    end
 
+    def update_states_part_2(states)
       @running = states.include?(:running)
       @ramping = states.include?(:ramping)
       @holding = states.include?(:holding)
@@ -249,6 +259,18 @@ module LegoEv3
       update_states
 
       !@running || @holding
+    end
+
+    def get_value(variable_name, command, sync = true)
+      if sync
+        instance_variable_set(
+          variable_name,
+          LegoEv3::Commands::TachoMotor.send("#{command}!", @connection, @id))
+      else
+        LegoEv3::Commands::TachoMotor.send(command, @connection, @id) do |value|
+          instance_variable_set(variable_name, value)
+        end
+      end
     end
   end
 end
