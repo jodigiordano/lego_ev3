@@ -16,4 +16,12 @@ module LegoEv3
         "You must implement it.")
     end
   end
+
+  class InvalidModeException < Exception
+    def initialize(type, sub_type, mode, valid_modes)
+      super(
+        "The mode #{mode} is not valid on the #{type} of type #{sub_type}. " +
+        "Supported modes are: #{valid_modes}")
+    end
+  end
 end

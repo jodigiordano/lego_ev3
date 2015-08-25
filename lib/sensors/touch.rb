@@ -1,5 +1,4 @@
 module LegoEv3
-  # More info: http://www.ev3dev.org/docs/drivers/lego-sensor-class/
   class TouchSensor < LegoSensor
     def initialize(connection, id, port)
       super(connection, id, port, 'lego-ev3-touch')

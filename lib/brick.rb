@@ -81,6 +81,8 @@ module LegoEv3
 
           if driver_name == 'lego-ev3-touch'
             LegoEv3::TouchSensor.new(@connection, id, p)
+          elsif driver_name == 'lego-ev3-color'
+            LegoEv3::ColorSensor.new(@connection, id, p)
           else
             nil
           end

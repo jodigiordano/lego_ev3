@@ -7,6 +7,8 @@ module LegoEv3::Commands::LegoSensor
   get :driver_name
   get :decimals, Integer
   get :num_values, Integer
+  get_set :mode
+  get :modes, String, 'modes', 'r', -> response { response.split(' ').map(&:strip) }
   get :value0, Integer
   get :value1, Integer
   get :value2, Integer
