@@ -26,19 +26,27 @@ module LegoEv3
 
     def call_connection(commands)
       begin
-        @connection
-          .ssh(@host, join_commands(commands))
+        joined_command = join_commands(commands)
+
+        puts "Sending: #{joined_command}"
+
+        responses = @connection
+          .ssh(@host, joined_command)
           .stdout
           .split("\n")
-          .each_with_index
-          .map do |r, i|
-            if commands[i][0] == :list
-              # TODO: Bug? The folder is not created if no sensor plugged in once.
-              (r || '').include?('No such file or directory') ? [] : (r || '').split(' ').map(&:strip)
-            else
-              r
-            end
+
+        commands.map do |(verb, _, _, _)|
+          if verb == :list
+            # TODO: Bug? The folder is not created if no sensor plugged in once.
+            r = responses.shift
+            r.include?('No such file or directory') ? [] : r.split(' ').map(&:strip)
+          elsif verb == :read
+            responses.shift
+          elsif verb == :write
+            nil
+          else raise new LegoEv3::InvalidCommandException(verb)
           end
+        end
       rescue => e
         if e.wrapped.kind_of?(Timeout::Error)
           raise RemoteConnectionException.new(@host, @user, @password)
