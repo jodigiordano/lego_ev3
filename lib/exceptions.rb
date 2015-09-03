@@ -24,4 +24,13 @@ module LegoEv3
         "Supported modes are: #{valid_modes}")
     end
   end
+
+  class InvalidChannelException < Exception
+    def initialize(channel)
+      super(
+        "The channel #{channel} is not supported in the mode :control_alt of " +
+        "the infrared sensor. The only supported channel is 1."
+      )
+    end
+  end
 end

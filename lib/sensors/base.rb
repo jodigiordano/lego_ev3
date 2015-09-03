@@ -1,6 +1,8 @@
 module LegoEv3
   # More info: http://www.ev3dev.org/docs/drivers/lego-sensor-class/
   class LegoSensor
+    attr_reader :value
+    
     def initialize(connection, id, port, driver_name)
       @connection = connection
       @id = id
@@ -17,7 +19,7 @@ module LegoEv3
     end
 
     protected
-    
+
     def poll_value(parts_count)
       raw = []
 

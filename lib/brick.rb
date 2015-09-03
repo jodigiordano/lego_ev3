@@ -83,7 +83,7 @@ module LegoEv3
             LegoEv3::TouchSensor.new(@connection, id, p)
           elsif driver_name == 'lego-ev3-color'
             LegoEv3::ColorSensor.new(@connection, id, p)
-          elsif driver_name = 'lego-ev3-ir'
+          elsif driver_name == 'lego-ev3-ir'
             LegoEv3::InfraredSensor.new(@connection, id, p)
           else
             puts "The sensor #{driver_name} is not supported :( but I accept pull requests!"
