@@ -1,5 +1,5 @@
 module LegoEv3
-  class RemoteConnectionException < Exception
+  class SSHConnectionException < Exception
     def initialize(host, user, password)
       super(
         "Could not connect to the brick. " +
@@ -30,6 +30,15 @@ module LegoEv3
       super(
         "The channel #{channel} is not supported in the mode :control_alt of " +
         "the infrared sensor. The only supported channel is 1."
+      )
+    end
+  end
+
+  class InvalidRemoteServiceException < Exception
+    def initialize(service)
+      super(
+        "The 'remote.service' configuration is not valid. " +
+        "Supported services are: 'tcp', 'ssh'."
       )
     end
   end

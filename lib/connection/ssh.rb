@@ -1,13 +1,14 @@
 require 'net/ssh/simple'
 
 module LegoEv3
-  class RemoteConnection < BaseConnection
+  class SSHConnection < BaseConnection
     attr_accessor :timeout
 
-    def initialize(host, user, password)
+    def initialize(host, port, user, password)
       super()
 
       @host = host
+      @port = port
       @user = user
       @password = password
       @timeout = 10
@@ -21,7 +22,7 @@ module LegoEv3
     protected
 
     def create_connection
-      Net::SSH::Simple.new(host_name: @host, user: @user, password: @password, timeout: @timeout)
+      Net::SSH::Simple.new(host_name: @host, port: @port, user: @user, password: @password, timeout: @timeout)
     end
 
     def call_connection(commands)
@@ -49,7 +50,7 @@ module LegoEv3
         end
       rescue => e
         if e.wrapped.kind_of?(Timeout::Error)
-          raise RemoteConnectionException.new(@host, @user, @password)
+          raise SSHConnectionException.new(@host, @user, @password)
         else
           raise e
         end

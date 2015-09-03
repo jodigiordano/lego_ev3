@@ -13,8 +13,13 @@ OptionParser.new do |opt|
     options[:project] = project
   end
 
-  opt.on('-c, --config PATH', 'Use the provided configuration at PATH.') do |path|
+  opt.on('-c', '--config PATH', 'Use the provided configuration at PATH.') do |path|
     options[:user_config].merge!(LegoEv3::load_config(path))
+  end
+
+  opt.on('-s', '--server [PORT]', 'Start a TCP server on the brick.') do |port|
+    options[:mode] = :server
+    options[:user_config].merge!('remote' => { 'tcp' => port.to_i }) if port
   end
 end.parse!
 
@@ -24,10 +29,15 @@ puts
 puts options.inspect
 puts
 
-LegoEv3::Uploader
-  .new(
-    options[:user_config]['ssh']['host'],
-    options[:user_config]['ssh']['username'],
-    options[:user_config]['ssh']['password'],
-    options[:project])
-  .upload
+if options[:mode] == :upload
+  LegoEv3::Uploader
+    .new(
+      options[:user_config]['remote']['host'],
+      options[:user_config]['remote']['ssh'],
+      options[:user_config]['remote']['username'],
+      options[:user_config]['remote']['password'],
+      options[:project])
+    .upload
+elsif options[:mode] == :server
+  LegoEv3::TCPServer.new(options[:user_config]['remote']['tcp'].to_s).open
+end

@@ -12,16 +12,22 @@ module LegoEv3
           options[:user_config].merge!(LegoEv3::load_config(path))
         end
       end.parse!
-      is_local = `hostname`.strip == options[:user_config]['ssh']['hostname']
+
+      is_local = `hostname`.strip == options[:user_config]['remote']['hostname']
 
       @inner_connection = if is_local
         LegoEv3::LocalConnection.new
-      else
-        LegoEv3::RemoteConnection.new(
-          options[:user_config]['ssh']['host'],
-          options[:user_config]['ssh']['username'],
-          options[:user_config]['ssh']['password']
+      elsif options[:user_config]['remote']['service'].to_sym == :tcp
+        LegoEv3::TCPConnection.new(options[:user_config]['remote']['host'] + ':' + options[:user_config]['remote']['tcp'].to_s)
+      elsif options[:user_config]['remote']['service'].to_sym == :ssh
+        LegoEv3::SSHConnection.new(
+          options[:user_config]['remote']['host'],
+          options[:user_config]['remote']['ssh'],
+          options[:user_config]['remote']['username'],
+          options[:user_config]['remote']['password']
         )
+      else
+        raise LegoEv3::InvalidRemoteServiceException.new(options[:user_config]['remote']['service'])
       end
     end
 

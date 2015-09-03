@@ -18,11 +18,14 @@ module LegoEv3
 
   def self.default_user_config
     {
-      'ssh' => {
+      'remote' => {
         'host' => '192.168.2.3', # I'm working on Mac OS X, eh.
         'hostname' => 'ev3dev',
         'username' => 'root',
-        'password' => 'r00tme'
+        'password' => 'r00tme',
+        'ssh' => 22,
+        'tcp' => 13603,
+        'service' => 'ssh'
       }
     }
   end

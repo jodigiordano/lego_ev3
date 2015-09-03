@@ -20,7 +20,7 @@ module LegoEv3
         if verb == :list then list(path)
         elsif verb == :read then read(path, handle)
         elsif verb == :write then write(path, value, handle)
-        else raise new LegoEv3::InvalidCommandException(verb)
+        else raise LegoEv3::InvalidCommandException.new(verb)
         end
       end
     end
@@ -45,6 +45,7 @@ module LegoEv3
       f.rewind
       f.write(value)
       f.flush
+      nil
     end
 
     def get_file_handler(path, handle)
