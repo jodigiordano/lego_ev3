@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'lego_ev3'
+require 'optparse'
+require 'pp'
+
+options = {
+  port: LegoEv3::default_user_config['remote']['tcp']
+}
+
+OptionParser.new do |opt|
+  opt.banner = 'Usage: lego-ev3-tcp-server [options]'
+
+  opt.on('-p', '--port PORT', 'The port to use') do |port|
+    options[:port] = port
+  end
+end.parse!
+
+LegoEv3::TCPServer.new(options[:port]).open

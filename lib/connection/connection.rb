@@ -1,17 +1,9 @@
-require 'optparse'
-
 module LegoEv3
   class Connection
     def initialize(user_config = {})
       options = {
-        user_config: LegoEv3::default_user_config.merge(user_config)
+        user_config: LegoEv3::resolve_user_config
       }
-
-      OptionParser.new do |opt|
-        opt.on('-c, --config PATH', 'Use the provided configuration at PATH.') do |path|
-          options[:user_config].merge!(LegoEv3::load_config(path))
-        end
-      end.parse!
 
       is_local = `hostname`.strip == options[:user_config]['remote']['hostname']
 

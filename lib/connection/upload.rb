@@ -2,16 +2,13 @@ require 'net/ssh/simple'
 
 module LegoEv3
   class Uploader
-    def initialize(host, port, user, password, project)
-      @host = host
-      @port = port
-      @user = user
-      @password = password
+    def initialize(ssh_config, project)
+      @ssh_config = ssh_config
       @local_project_path = Pathname.new(project).realpath.to_s
     end
 
     def upload
-      Net::SSH::Simple.sync({ host_name: @host, port: @port, user: @user, password: @password, timeout: 600 }) do
+      Net::SSH::Simple.sync(@ssh_config) do
         puts "Removing previous folder #{remote_project_path}..."
         ssh('ev3', "rm -rf #{remote_project_path}/**/*")
 

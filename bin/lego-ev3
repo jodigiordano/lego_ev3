@@ -2,42 +2,85 @@
 
 require 'lego_ev3'
 require 'optparse'
+require 'pp'
 
 options = {
-  user_config: LegoEv3::default_user_config
+  upload: false,
+  mode: :run_local,
+  user_config: nil
 }
 
 OptionParser.new do |opt|
-  opt.on('-u', '--upload PROJECT', 'Upload everything under ./.../PROJECT to /home/PROJECT on the brick.') do |project|
-    options[:mode] = :upload
-    options[:project] = project
+  opt.banner = 'Usage: lego-ev3 [project] [options]'
+
+  opt.on('-u', '--upload', 'Upload the project to /home/PROJECT on the brick.') do
+    options[:upload] = true
+  end
+
+  opt.on('-r', '--run', 'Run the project locally.') do
+    options[:mode] = :run_local
+  end
+
+  opt.on('-R', '--run-remotely', 'Run the project remotely.') do
+    options[:mode] = :run_remote
   end
 
   opt.on('-c', '--config PATH', 'Use the provided configuration at PATH.') do |path|
     options[:user_config].merge!(LegoEv3::load_config(path))
   end
 
-  opt.on('-s', '--server [PORT]', 'Start a TCP server on the brick.') do |port|
+  opt.on('-s', '--server', 'Start a TCP server on the brick.') do |port|
     options[:mode] = :server
-    options[:user_config].merge!('remote' => { 'tcp' => port.to_i }) if port
   end
 end.parse!
+
+options[:project] = ARGV.pop
+options[:user_config] ||= options[:project].nil? || !File.exists?(File.join(options[:project], 'config.yml')) ?
+  LegoEv3::default_user_config :
+  LegoEv3::load_config(File.join(options[:project], 'config.yml'))
 
 puts
 puts "Config used:"
 puts
-puts options.inspect
+pp options
 puts
 
-if options[:mode] == :upload
+if options[:project].nil? && options[:mode] != :server
+  puts 'This mode requires a project!'
+  puts 'Usage: lego-ev3 [project] [options]'
+  exit
+end
+
+ssh_config = {
+  host_name: options[:user_config]['remote']['host'],
+  port: options[:user_config]['remote']['ssh'],
+  user: options[:user_config]['remote']['username'],
+  password: options[:user_config]['remote']['password'],
+  timeout: 20
+}
+
+if options[:upload]
   LegoEv3::Uploader
-    .new(
-      options[:user_config]['remote']['host'],
-      options[:user_config]['remote']['ssh'],
-      options[:user_config]['remote']['username'],
-      options[:user_config]['remote']['password'],
-      options[:project])
+    .new(ssh_config, options[:project])
     .upload
+end
+
+if options[:mode] == :run_local
+  command =
+    "cd /home/#{options[:project].split('/').last} && " +
+    "ruby #{options[:user_config]['entry_point']}"
+
+  LegoEv3::SSHScript
+    .new(ssh_config, command)
+    .run
+
+elsif options[:mode] == :run_remote
+  LegoEv3::user_config_overrides = options[:user_config]
+  load File.join(options[:project], options[:user_config]['entry_point'])
 elsif options[:mode] == :server
-  LegoEv3::TCPServer.new(options[:user_config]['remote']['tcp'].to_s).open
+  command = "nohup lego-ev3-tcp-server -p #{options[:user_config]['remote']['tcp']} > /dev/null 2>&1 &"
+
+  LegoEv3::SSHScript
+    .new(ssh_config, command)
+    .run
 end

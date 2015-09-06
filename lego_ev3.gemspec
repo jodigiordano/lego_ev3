@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.email       = 'giordano.jodi@gmail.com'
   s.homepage    = 'https://github.com/jodigiordano/lego_ev3'
   s.files       = ['Gemfile', 'README.md'] + Dir['lib/**/*.rb'] + Dir['test/**/*.rb']
-  s.executables = ['lego-ev3']
+  s.executables = ['lego-ev3', 'lego-ev3-tcp-server']
   s.license     = 'MIT'
 
   s.add_runtime_dependency 'net-ssh-simple', '~> 1.6'
