@@ -6,7 +6,7 @@ require 'pp'
 
 options = {
   upload: false,
-  mode: :run_local,
+  mode: :none,
   user_config: nil
 }
 

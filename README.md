@@ -121,9 +121,9 @@ To spawn it in foreground, you need to connect to the brick.
 
 ## TODO
 
-* DSL
-* Plug a state machine lib + graph the state machine
-* TCP server
-* Log to file with verbosity
-* Log each sensor individually to graph them
-* One polling thread per sensor
+* Add a DSL on top of current lib
+* Add a state machine on top of current lib
+* Use the state machine to produce graphs of robot logic
+* Add logging and easy way to produce sensor graphs
+* Polling sensors should probably be multi-threaded
+* Add examples
