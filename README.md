@@ -4,7 +4,7 @@ This library leverages the [ev3dev.org](http://www.ev3dev.org) project to provid
 
 ## Getting started
 
-    gem install lego-ev3
+    gem install lego_ev3
 
 Then:
 
@@ -31,6 +31,7 @@ Put in `script.rb`:
 
 Put in `config.yml`:
 
+    entry_point: script.rb
     remote:
       host: '192.168.2.3'
       hostname: 'ev3dev'
@@ -81,6 +82,10 @@ This mode requires `remote.service: 'ssh'` in the config.
 * [+] No need to send files to the brick
 * [+] Can use breakpoints in script using [Pry](https://github.com/pry/pry)
 * [-] The slowest approach (~200 ms per command)
+
+Execute the script with:
+
+    lego-ev3 example -R
 
 ## Running a script locally on the brick
 
